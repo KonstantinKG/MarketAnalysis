@@ -1,0 +1,39 @@
+{
+  "app": "market-analysis-parsers",
+  "connection": {
+      "user": "postgres",
+      "password": "12345",
+      "host": "localhost",
+      "port": "2345",
+      "database": "postgres",
+      "schema": "public"
+    },
+  "logger": {
+      "version": 1,
+      "disable_existing_loggers": true,
+      "formatters": {
+          "console": {
+              "format": "%(asctime)s — [ %(levelname)s ] — %(message)s"
+          }
+      },
+      "handlers": {
+          "console": {
+              "class": "logging.StreamHandler",
+              "stream": "ext://sys.stdout",
+              "formatter": "console"
+          }
+      },
+      "loggers": {
+          "": {
+              "handlers": [
+                "console"
+              ],
+              "level": "INFO",
+              "propagate": true
+          }
+      }
+  }
+}
+
+
+

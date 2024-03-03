@@ -1,0 +1,21 @@
+services:
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 2345:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "public", "-U", "postgres", "-h", "db"]
+      interval: 2s
+      timeout: 1s
+      retries: 7
+
+volumes:
+  postgresql-data:
