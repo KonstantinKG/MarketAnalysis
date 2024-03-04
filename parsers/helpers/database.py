@@ -1,6 +1,10 @@
 import asyncpg
 from logging import Logger
 
+from asyncpg import Connection
+
+from models import Category
+
 
 class Database:
     def __init__(self, config: dict, logger: Logger):
@@ -8,7 +12,7 @@ class Database:
         self._logger = logger
         self._pool = None
 
-    async def create_connection(self):
+    async def create_connection(self) -> Connection:
         return await asyncpg.connect(
             user=self._config['connection']['user'],
             host=self._config['connection']['host'],
@@ -24,3 +28,15 @@ class Database:
 
         conn = await self.create_connection()
         await conn.executemany(query, data)
+
+    async def get_categories_as_dict(self) -> dict:
+        query = f'''SELECT id, code FROM {self._config['schema']}.categories'''
+
+        conn = await self.create_connection()
+        rows = await conn.fetch(query)
+
+        result = {}
+        for row in rows:
+            result[row[1]] = row[0]
+
+        return result

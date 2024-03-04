@@ -1,14 +1,9 @@
-import functools
-import sys
-import json
 import asyncio
-
+import json
 import logging.config
 import time
 import traceback
 from logging import Logger
-
-import aiohttp
 
 from helpers import Database
 from parsers.kaspi import KaspiParser
