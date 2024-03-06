@@ -1,1 +1,1 @@
-from .event_analysis_controller import EventAnalysisController
+from .market_analysis_controller import MarketAnalysisController

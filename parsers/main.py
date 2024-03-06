@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging.config
+import os
 import time
 import traceback
 from logging import Logger
@@ -29,12 +30,15 @@ async def main():
     with open("config.json", 'r', encoding='utf-8') as file:
         config = json.load(file)
 
+    base_dir = os.path.dirname(__file__)
+    config["base_dir"] = os.path.join(base_dir, "../")
+
     logging.config.dictConfig(config=config["logger"])
     logger = logging.getLogger(name=config["app"])
 
     db = Database(config=config, logger=logger)
 
-    kaspi_parser = KaspiParser(logger=logger, db=db)
+    kaspi_parser = KaspiParser(config=config, logger=logger, db=db)
 
     try:
         logger.info(f"Parser started")

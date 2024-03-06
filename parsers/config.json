@@ -1,5 +1,6 @@
 {
   "app": "market-analysis-parsers",
+  "files": "files",
   "connection": {
       "user": "postgres",
       "password": "12345",

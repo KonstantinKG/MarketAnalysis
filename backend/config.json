@@ -1,10 +1,15 @@
 {
-  "app": "event-analysis",
-  "host": "localhost",
-  "port": "8080",
+  "app": "event-analysis-backend",
+  "host": "0.0.0.0",
+  "port": 8199,
   "connection": {
-    "sqlite": "event-analysis.db"
-  },
+      "user": "postgres",
+      "password": "12345",
+      "host": "db",
+      "port": "5432",
+      "database": "postgres",
+      "schema": "public"
+    },
 
   "logger": {
       "version": 1,

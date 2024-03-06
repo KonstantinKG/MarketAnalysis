@@ -10,12 +10,20 @@ services:
     ports:
       - 2345:5432
     volumes:
-      - postgresql-data:/var/lib/postgresql/data
+      - C:/Users/konst/Desktop/HW/MarketAnalysis/data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "public", "-U", "postgres", "-h", "db"]
       interval: 2s
       timeout: 1s
       retries: 7
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 8199:8199
+    restart: on-failure
 
 volumes:
   postgresql-data:

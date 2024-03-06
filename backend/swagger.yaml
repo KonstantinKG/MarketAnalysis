@@ -1,0 +1,192 @@
+openapi: 3.0.0
+info:
+  title: Event Analysis API
+  version: 1.0.0
+paths:
+  /get/product:
+    get:
+      summary: Get product
+      parameters:
+        - name: id
+          in: query
+          description: Product id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+
+  /get/product/characteristics:
+    get:
+      summary: Get suppliers
+      parameters:
+        - name: product_id
+          in: query
+          description: Product id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+
+  /get/product/suppliers:
+    get:
+      summary: Get suppliers
+      parameters:
+        - name: product_id
+          in: query
+          description: Product id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Supplier'
+
+  /get/products:
+    get:
+      summary: Get products
+      parameters:
+        - name: page
+          in: query
+          description: Page
+          required: true
+          schema:
+            type: integer
+        - name: category_id
+          in: query
+          description: Category id
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort filter
+          required: false
+          schema:
+            type: string
+        - name: price
+          in: query
+          description: Price filter
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductsResponse'
+
+
+
+  /get/categories:
+    get:
+      summary: Get categories
+      parameters:
+        - name: id
+          in: query
+          description: Category id
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Category'
+
+  /get/filters:
+    get:
+      summary: Get filters
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        code:
+          type: string
+
+    ProductsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        current:
+          type: integer
+        data:
+          $ref: '#/components/schemas/Product'
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+        rating:
+          type: integer
+        description:
+          type: string
+        characteristics:
+          type: string
+
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: integer
+        rating:
+          type: integer
