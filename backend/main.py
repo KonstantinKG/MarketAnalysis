@@ -68,7 +68,7 @@ async def get_filters(request):
 
 
 app.router.add_get('/get/product', get_product)
-app.router.add_get('/get/product/suppliers', get_products)
+app.router.add_get('/get/product/suppliers', get_suppliers)
 app.router.add_get('/get/product/characteristics', get_characteristics)
 app.router.add_get('/get/products', get_products)
 app.router.add_get('/get/categories', get_categories)
