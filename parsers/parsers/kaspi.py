@@ -152,7 +152,7 @@ class KaspiParser:
 
             self.PRODUCTS.append(product)
         except Exception as e:
-            raise e
+            return
 
     async def parse_product_suppliers(self, card: dict):
         try:
