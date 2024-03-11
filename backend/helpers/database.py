@@ -93,8 +93,22 @@ class Database:
         orderby = sort if sort else "relevance DESC"
         return f"ORDER BY {orderby}" if orderby else ''
 
+    async def search_products(self, query: str, after: str or None = None, limit: int = 20):
+        condition = f"p.name ilike '%{query}%'"
+        condition = f"{condition} AND p.id > '{after}'" if after else condition
+        query = f'''
+            SELECT p.id, p.name, p.rating 
+            FROM {Product.TABLE} p
+            INNER JOIN {Supplier.TABLE} s on p.id = s.product_id 
+            WHERE {condition}
+            GROUP BY p.id
+            ORDER BY p.rating DESC, max(s.price) DESC
+            LIMIT {limit};
+        '''
 
-
+        conn = await self.create_connection()
+        rows = await conn.fetch(query)
+        return rows
 
     async def get_suppliers(self, product_id: str):
         query = f'''

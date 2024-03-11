@@ -108,6 +108,35 @@ paths:
                     $ref: '#/components/schemas/ProductsResponse'
 
 
+  /search/products:
+    get:
+      summary: Search products by name
+      parameters:
+        - name: name
+          in: query
+          description: Product name
+          required: true
+          schema:
+            type: string
+        - name: after
+          in: query
+          description: After product id
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/SearchProductsResponse'
+
 
   /get/categories:
     get:
@@ -160,6 +189,14 @@ components:
           type: integer
         current:
           type: integer
+        data:
+          $ref: '#/components/schemas/Product'
+
+    SearchProductsResponse:
+      type: object
+      properties:
+        next:
+          type: string
         data:
           $ref: '#/components/schemas/Product'
 

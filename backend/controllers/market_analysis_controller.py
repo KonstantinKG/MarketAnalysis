@@ -68,6 +68,28 @@ class MarketAnalysisController:
         except Exception as e:
             self._logger.error(f"{e} {traceback.format_exc()}")
 
+    async def search_products(self, request: Request):
+        try:
+            name = request.query.get("name")
+            after = request.query.get("after")
+
+            products = await self._db.search_products(query=name, after=after, limit=20)
+            next = products[-1][0] if len(products) > 0 else None
+
+            return self.response(data={
+                "next": next,
+                "data": [
+                    {
+                        "id": row[0],
+                        "name": row[1],
+                        "rating": row[2]
+                    }
+                    for row in products
+                ]
+            })
+        except Exception as e:
+            self._logger.error(f"{e} {traceback.format_exc()}")
+
     async def get_suppliers(self, request: Request):
         try:
             product_id = request.query.get("product_id")

@@ -47,6 +47,11 @@ async def get_products(request):
     return web.json_response(response)
 
 
+async def search_products(request):
+    response = await event_analysis_controller.search_products(request=request)
+    return web.json_response(response)
+
+
 async def get_suppliers(request):
     response = await event_analysis_controller.get_suppliers(request=request)
     return web.json_response(response)
@@ -73,6 +78,8 @@ app.router.add_get('/get/product/characteristics', get_characteristics)
 app.router.add_get('/get/products', get_products)
 app.router.add_get('/get/categories', get_categories)
 app.router.add_get('/get/filters', get_filters)
+
+app.router.add_get('/search/products', search_products)
 
 setup_swagger(app, swagger_url="/api/documentation", swagger_from_file="swagger.yaml", ui_version=3)
 
