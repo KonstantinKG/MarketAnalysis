@@ -26,16 +26,6 @@ event_analysis_controller = MarketAnalysisController(
 
 app = web.Application()
 
-cors = aiohttp_cors.setup(
-    app=app,
-    defaults={
-        "*": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-        )
-    })
-
 
 async def get_product(request):
     response = await event_analysis_controller.get_product(request=request)
@@ -82,6 +72,19 @@ app.router.add_get('/get/filters', get_filters)
 app.router.add_get('/search/products', search_products)
 
 setup_swagger(app, swagger_url="/api/documentation", swagger_from_file="swagger.yaml", ui_version=3)
+
+cors = aiohttp_cors.setup(
+    app=app,
+    defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+
+for route in list(app.router.routes()):
+    cors.add(route)
 
 if __name__ == '__main__':
     if (
