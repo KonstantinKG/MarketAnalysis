@@ -83,7 +83,7 @@ class Database:
         where = category if category else ''
         if where and price:
             where = f"{where} AND {price}"
-        else:
+        elif price:
             where = price
 
         return f"WHERE {where}" if where else ''
@@ -93,22 +93,32 @@ class Database:
         orderby = sort if sort else "relevance DESC"
         return f"ORDER BY {orderby}" if orderby else ''
 
-    async def search_products(self, query: str, after: str or None = None, limit: int = 20):
-        condition = f"p.name ilike '%{query}%'"
-        condition = f"{condition} AND p.id > '{after}'" if after else condition
+    async def search_products(self, query: str, offset: int, limit: int):
         query = f'''
-            SELECT p.id, p.name, p.rating 
+            SELECT
+                p.id,
+                p.name,
+                image,
+                p.rating,
+                max(price) as price
             FROM {Product.TABLE} p
-            INNER JOIN {Supplier.TABLE} s on p.id = s.product_id 
-            WHERE {condition}
+            INNER JOIN {Supplier.TABLE} s on p.id = s.product_id
+            WHERE p.name ilike '%{query}%'
             GROUP BY p.id
             ORDER BY p.rating DESC, max(s.price) DESC
+            OFFSET {offset}
             LIMIT {limit};
         '''
 
         conn = await self.create_connection()
         rows = await conn.fetch(query)
         return rows
+
+    async def get_search_products_count(self, query: str):
+        query = f'''SELECT count(*) FROM {Product.TABLE} p WHERE p.name ilike '%{query}%';'''
+        conn = await self.create_connection()
+        row = await conn.fetchrow(query)
+        return row[0]
 
     async def get_suppliers(self, product_id: str):
         query = f'''
@@ -119,6 +129,7 @@ class Database:
                 rating
             FROM {Supplier.TABLE} s
             WHERE product_id='{product_id}'
+            ORDER BY price
         '''
 
         conn = await self.create_connection()

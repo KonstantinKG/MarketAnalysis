@@ -118,12 +118,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: after
+        - name: page
           in: query
-          description: After product id
-          required: false
+          description: Page
+          required: true
           schema:
-            type: string
+            type: integer
       responses:
         '200':
           description: Successful response
@@ -132,11 +132,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  next:
-                    type: string
                   data:
-                    $ref: '#/components/schemas/SearchProductsResponse'
-
+                    $ref: '#/components/schemas/ProductsResponse'
 
   /get/categories:
     get:
@@ -157,7 +154,9 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Category'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
 
   /get/filters:
     get:
@@ -187,18 +186,14 @@ components:
       properties:
         total:
           type: integer
+        pages:
+          type: integer
         current:
           type: integer
         data:
-          $ref: '#/components/schemas/Product'
-
-    SearchProductsResponse:
-      type: object
-      properties:
-        next:
-          type: string
-        data:
-          $ref: '#/components/schemas/Product'
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
 
     Product:
       type: object

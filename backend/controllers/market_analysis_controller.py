@@ -47,12 +47,13 @@ class MarketAnalysisController:
             limit = 20
             offset = (page - 1) * limit
             total = await self._db.get_products_count(sort=sort, price=price, category_id=category_id)
-            pages = int(total / limit + (total % 1 if limit > 0 else 0))
+            pages = int(total // limit + (1 if total % limit > 0 else 0))
 
             products = await self._db.get_products(offset=offset, limit=limit, sort=sort, price=price, category_id=category_id)
 
             return self.response(data={
-                "total": pages,
+                "total": total,
+                "pages": pages,
                 "current": page,
                 "data": [
                     {
@@ -70,19 +71,27 @@ class MarketAnalysisController:
 
     async def search_products(self, request: Request):
         try:
+            page = int(request.query.get("page"))
             name = request.query.get("name")
-            after = request.query.get("after")
 
-            products = await self._db.search_products(query=name, after=after, limit=20)
-            next = products[-1][0] if len(products) > 0 else None
+            limit = 20
+            offset = (page - 1) * limit
+            total = await self._db.get_search_products_count(query=name)
+            pages = int(total // limit + (1 if total % limit > 0 else 0))
+
+            products = await self._db.search_products(query=name, offset=offset, limit=limit)
 
             return self.response(data={
-                "next": next,
+                "total": total,
+                "pages": pages,
+                "current": page,
                 "data": [
                     {
                         "id": row[0],
                         "name": row[1],
-                        "rating": row[2]
+                        "image": row[2],
+                        "rating": row[3],
+                        "price": row[4]
                     }
                     for row in products
                 ]
