@@ -57,11 +57,26 @@ fetchCharacteristics()
     <q-btn class="q-mb-sm" icon="arrow_back" color="orange" no-caps @click="router.back()">
       Назад
     </q-btn>
-    <q-img height="500px" fit="contain" :src="`/${product.image}`" alt="" />
-    <div>{{ product.name }}</div>
-    <q-rating v-model="product.rating" size="2em" color="orange" readonly />
-    <div>{{ Number(product.price).toLocaleString('RU-ru') }}₸</div>
-    <q-tabs v-model="tab" indicator-color="transparent" align="left">
+    <div class="product">
+      <q-img height="500px" fit="contain" :src="`/example.jpg`" />
+      <div class="product__content">
+        <div class="title">{{ product.name }}</div>
+        <q-rating
+          v-model="product.rating"
+          icon="star_border"
+          icon-selected="star"
+          icon-half="star_half"
+          size="2em"
+          color="orange"
+          readonly
+        />
+        <div class="price">
+          <span class="text-grey-4">Цена - </span>
+          <b>{{ Number(product.price).toLocaleString('RU-ru') }}₸</b>
+        </div>
+      </div>
+    </div>
+    <q-tabs active-bg-color="grey-9" v-model="tab" indicator-color="transparent" align="left">
       <q-tab name="suppliers" label="Продавцы" />
       <q-tab name="characteristics" label="Характеристики" />
       <q-tab v-if="product.description" name="description" label="Описание" />
@@ -75,23 +90,26 @@ fetchCharacteristics()
         </div>
       </q-tab-panel>
       <q-tab-panel name="characteristics">
-        <div class="characteristics__title">Характеристики {{ product.name }}</div>
+        <div class="characteristics-title">Характеристики {{ product.name }}</div>
         <div
           v-for="characteristic in characteristics"
           :key="characteristic.code"
           class="characteristics"
         >
           <div class="characteristics__name">{{ characteristic.name }}</div>
-          <div>
+          <div class="characteristics__content">
             <div
               v-for="feature in characteristic.features"
               :key="feature.code"
               class="characteristics__values"
             >
-              <span  class="characteristics__values-title">{{ feature.name }}</span>
-              <span>{{
+              <span class="characteristics__values-title">{{ feature.name }}</span>
+              &#8212
+              <span>
+                {{
                   feature.featureValues[0].value === 'true' ? 'Да' : feature.featureValues[0].value
-                }}</span>
+                }}
+              </span>
             </div>
           </div>
         </div>
@@ -104,33 +122,75 @@ fetchCharacteristics()
 </template>
 
 <style scoped lang="scss">
+.product {
+  display: flex;
+
+  .q-img {
+    border: 1px solid $grey-9;
+  }
+
+  &__content {
+    flex: 0 0 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-top: 1px solid $grey-9;
+    border-bottom: 1px solid $grey-9;
+    border-right: 1px solid $grey-9;
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+
+      &::first-letter {
+        text-transform: uppercase;
+      }
+    }
+
+    .price {
+      font-size: 16px;
+    }
+  }
+}
+
+.q-tabs {
+  margin: 20px 0;
+}
+
+.characteristics-title {
+  font-weight: 700;
+  font-size: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid $grey;
+}
+
 .characteristics {
   display: flex;
-  gap: 20px;
+  gap: 30px;
 
   &:not(:first-child) {
-    margin-top: 30px;
+    margin-top: 20px;
   }
 
   & > div {
-    padding-bottom: 30px;
-    border-bottom: 1px solid $grey;
-  }
-
-  &__title {
-    font-weight: 600;
-    font-size: 24px;
-    padding-bottom: 30px;
+    padding-bottom: 20px;
     border-bottom: 1px solid $grey;
   }
 
   &__name {
     flex-basis: 25%;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  &__content {
+    flex: 1 1 auto;
   }
 
   &__values {
     display: flex;
-    gap: 20px;
+    gap: 10px;
   }
 }
 
@@ -138,9 +198,12 @@ fetchCharacteristics()
   display: flex;
   align-items: center;
   gap: 20px;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  padding-bottom: 10px;
   border-bottom: 1px solid $grey;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
 
   & > * {
     flex: 0 1 33.333%;

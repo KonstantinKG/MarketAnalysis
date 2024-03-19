@@ -15,12 +15,10 @@ const filters = ref<FiltersData>({
 })
 const search = ref('')
 const categories = ref<CategoryData[]>([])
-const subCategories = ref<CategoryData[]>([])
 const page = ref(1)
-const category = ref<string>([])
-const selectCategory = ref('')
+const category = ref<string | string[]>([])
 const sort = ref<string>('relevance')
-const price = ref<string>()
+const price = ref<string | undefined>(undefined)
 const isLoading = ref(false)
 const isLoadingMore = ref(false)
 
@@ -29,7 +27,7 @@ async function fetchAllProducts(loadMore = false) {
     if (!loadMore) isLoading.value = true
     const { data } = await MarketAnalysisService.getAll({
       page: page.value,
-      category_id: category.value,
+      category_id: category.value as string,
       sort: sort.value,
       price: price.value
     })
@@ -83,18 +81,10 @@ async function fetchCategories(id?: string) {
       categories.value[index].children = data
     } else {
       categories.value = data
+      for (const item of data) {
+        await fetchCategories(item.id)
+      }
     }
-    // for (const category of categories.value) {
-    //   category.children = [{ value: '123455', label: 'fw' }]
-    // }
-    // categories.value[0].children = data
-    // if (id) {
-    //   subCategories.value = data
-    // } else {
-    //   categories.value = data.map((el) => {
-    //     return { label: el.name, value: el.id }
-    //   })
-    // }
   } catch (e) {
     console.error(e)
   }
@@ -115,9 +105,7 @@ async function fetchFilters() {
 }
 
 function onSelectCategory(id: string) {
-  console.log(id)
   category.value = id
-  fetchCategories(id)
 }
 
 watch([category, sort, price], async () => {
@@ -132,127 +120,160 @@ fetchCategories()
 
 <template>
   <q-page>
-    <div class="categories">
-      <q-tree
-        node-key="id"
-        :nodes="categories"
-        label-key="name"
-        :selected="category"
-        @update:selected="onSelectCategory"
-      />
-      <!--      <q-select-->
-      <!--        class="categories__select"-->
-      <!--        :model-value="selectCategory"-->
-      <!--        :options="categories"-->
-      <!--        label="Категории"-->
-      <!--        filled-->
-      <!--        emit-value-->
-      <!--        map-options-->
-      <!--        clearable-->
-      <!--        @update:model-value="onSelectCategory"-->
-      <!--      />-->
-      <!--      <div v-for="(item, index) in subCategories" :key="index">-->
-      <!--        <q-btn color="primary" @click="category = item.id">{{ item.name }}</q-btn>-->
-      <!--      </div>-->
-    </div>
-    <q-select
-      v-model="sort"
-      :options="filters.sort"
-      label="Сортировать по"
-      filled
-      emit-value
-      map-options
-      clearable
-    />
-    <q-input
-      v-model="search"
-      clearable
-      filled
-      label="Искать по названию"
-      class="controls__search"
-      @keyup.enter="searchProducts"
-      @clear="fetchAllProducts"
-    >
-      <template #prepend>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-    <q-option-group v-model="price" :options="filters.price" color="primary" />
-    <div class="title">Всего найдено товаров: {{ products.total }}</div>
-    <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-      <div v-show="!isLoading" class="cards">
-        <div v-for="product in products.data" :key="product.id" class="card">
-          <q-img
-            fit="contain"
-            class="card__image"
-            height="200px"
-            :src="`/${product.image}`"
-            alt=""
-          />
-          <router-link :to="{ name: 'Product', params: { id: product.id } }">
-            {{ product.name }}
-          </router-link>
-          <q-rating
-            v-model="product.rating"
-            icon="star_border"
-            icon-selected="star"
-            icon-half="star_half"
-            size="2em"
-            color="orange"
-            readonly
-          />
-          <div>Цена - {{ Number(product.price).toLocaleString('RU-ru') }}₸</div>
-        </div>
-        <h5 v-if="!products.data.length && !isLoading">Не найдено мероприятий</h5>
+    <div class="sidebar">
+      <div class="categories">
+        <div class="sidebar-title">Категории</div>
+        <q-tree
+          node-key="id"
+          :nodes="categories"
+          label-key="name"
+          selected-color="orange"
+          :selected="category"
+          @update:selected="onSelectCategory"
+        />
       </div>
-    </transition>
-    <q-inner-loading :showing="isLoading">
-      <q-spinner-hourglass size="xl" color="primary" />
-    </q-inner-loading>
-    <div class="row justify-center q-mt-md">
-      <q-btn
-        v-if="products.current < products.pages && !isLoading"
-        :loading="isLoadingMore"
-        outline
-        padding="sm xl"
-        color="orange"
-        @click="loadMore"
+      <div class="prices">
+        <div class="sidebar-title">Цены</div>
+        <q-option-group
+          v-model="price"
+          :options="[{ label: 'Все', value: undefined }, ...filters.price]"
+          color="primary"
+        />
+      </div>
+    </div>
+    <div class="content relative-position">
+      <q-input
+        v-model="search"
+        clearable
+        filled
+        label="Искать по названию"
+        class="content__search"
+        @keyup.enter="searchProducts"
+        @clear="fetchAllProducts"
       >
-        Показать еще
-      </q-btn>
+        <template #prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+      <div class="content__header">
+        <div class="title">Всего найдено товаров: {{ products.total }}</div>
+        <q-select
+          v-model="sort"
+          style="flex-basis: 250px"
+          :options="filters.sort"
+          label="Сортировать по"
+          filled
+          emit-value
+          map-options
+          clearable
+        />
+      </div>
+      <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+        <div v-if="!isLoading" class="content__cards">
+          <div v-for="product in products.data" :key="product.id" class="content__card">
+            <div class="product-image">
+              <q-img fit="contain" height="200px" :src="`/example.jpg`" />
+            </div>
+            <router-link :to="{ name: 'Product', params: { id: product.id } }">
+              <div class="product-name">{{ product.name }}</div>
+            </router-link>
+            <q-rating
+              v-model="product.rating"
+              icon="star_border"
+              icon-selected="star"
+              icon-half="star_half"
+              size="2em"
+              color="orange"
+              readonly
+            />
+            <div>
+              <span class="text-grey-4">Цена - </span>
+              <b>{{ Number(product.price).toLocaleString('RU-ru') }}₸</b>
+            </div>
+          </div>
+        </div>
+      </transition>
+      <q-inner-loading :showing="isLoading">
+        <q-spinner-dots size="xl" color="primary" />
+      </q-inner-loading>
+      <div class="row justify-center q-mt-md">
+        <q-btn
+          v-if="products.current < products.pages && !isLoading"
+          :loading="isLoadingMore"
+          outline
+          padding="sm xl"
+          color="orange"
+          @click="loadMore"
+        >
+          Показать еще
+        </q-btn>
+      </div>
     </div>
   </q-page>
 </template>
 
 <style scoped lang="scss">
-.title {
-  font-weight: 700;
-  font-size: 24px;
-  margin-bottom: 20px;
+.q-page {
+  display: flex;
+  gap: 20px;
 }
 
-.categories {
+.sidebar {
+  flex: 0 0 240px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
-  margin-bottom: 20px;
 
-  &__select {
-    width: 250px;
+  .categories {
+    padding-bottom: 20px;
+    border-bottom: 1px solid $grey-9;
+  }
+
+  &-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
   }
 }
 
-.cards {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.card {
-  padding: 10px;
-  flex: 0 1 33.333%;
-  border: 1px solid $grey-3;
+.content {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .title {
+      font-weight: 700;
+      font-size: 24px;
+    }
+  }
+
+  &__cards {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  &__card {
+    flex: 0 1 33.333%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid $grey-9;
+
+    .product-image {
+      padding-bottom: 10px;
+      border-bottom: 1px solid $grey-9;
+    }
+
+    .product-name::first-letter {
+      text-transform: uppercase;
+    }
+  }
 }
 </style>
