@@ -7,7 +7,6 @@ import type {
   CharacteristicsData,
   ProductSupplierData,
   SearchParams,
-  SearchData,
   CategoryData,
   FiltersData
 } from './types'
@@ -27,7 +26,7 @@ class MarketAnalysisService {
     return await api.get(`${this.RESOURCE}/product`, { params: { id } }).then(this.getData)
   }
 
-  async getCharacteristics(product_id: string): PromiseResponse<CharacteristicsData> {
+  async getCharacteristics(product_id: string): PromiseResponse<CharacteristicsData[]> {
     return await api
       .get(`${this.RESOURCE}/product/characteristics`, { params: { product_id } })
       .then(this.getData)
@@ -39,11 +38,11 @@ class MarketAnalysisService {
       .then(this.getData)
   }
 
-  async searchProducts(params: SearchParams): PromiseResponse<SearchData> {
+  async searchProducts(params: SearchParams): PromiseResponse<AllProductsData> {
     return await api.get('search/products', { params }).then(this.getData)
   }
 
-  async getCategories(id?: string): PromiseResponse<CategoryData> {
+  async getCategories(id?: string): PromiseResponse<CategoryData[]> {
     return await api.get(`${this.RESOURCE}/categories`, { params: { id } }).then(this.getData)
   }
 

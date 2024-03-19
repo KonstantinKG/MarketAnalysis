@@ -7,7 +7,7 @@ export interface GetAllProductsParams {
 
 export interface SearchParams {
   name: string
-  after?: string
+  page: number
 }
 
 export interface ProductData {
@@ -19,7 +19,6 @@ export interface ProductData {
   description: string | null
 }
 
-//TODO: pages
 export interface AllProductsData {
   total: number
   current: number
@@ -36,7 +35,7 @@ interface FeatureData {
   comparable: string
   featureUnit: string
   featureValues: {
-    values: string
+    value: string
   }[]
   mandatory: string
   keyAttribute: string
@@ -75,6 +74,7 @@ export interface CategoryData {
   id: string
   name: string
   code: string
+  children?: CategoryData[]
 }
 
 type Item = { id: string; name: string }
