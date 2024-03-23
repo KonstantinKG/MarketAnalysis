@@ -2,7 +2,8 @@
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 import MarketAnalysisService from 'src/api'
-import { type CharacteristicsData, ProductData, type ProductSupplierData } from 'src/api/types'
+import type { CharacteristicsData, ProductData, ProductSupplierData } from 'src/api/types'
+import { FILES_PATH } from 'src/constants'
 
 const router = useRouter()
 const route = useRoute()
@@ -19,6 +20,16 @@ const product = ref<ProductData>({
 })
 const suppliers = ref<ProductSupplierData[]>([])
 const characteristics = ref<CharacteristicsData[]>([])
+
+function getFeatureValue(value: string) {
+  if (value === 'true') {
+    return 'Да'
+  } else if (value === 'false') {
+    return 'Нет'
+  } else {
+    return value
+  }
+}
 
 async function fetchProduct() {
   try {
@@ -58,7 +69,7 @@ fetchCharacteristics()
       Назад
     </q-btn>
     <div class="product">
-      <q-img height="500px" fit="contain" :src="`/example.jpg`" />
+      <q-img height="500px" fit="contain" :src="`${FILES_PATH}${product.image}`" />
       <div class="product__content">
         <div class="title">{{ product.name }}</div>
         <q-rating
@@ -76,7 +87,7 @@ fetchCharacteristics()
         </div>
       </div>
     </div>
-    <q-tabs active-bg-color="grey-9" v-model="tab" indicator-color="transparent" align="left">
+    <q-tabs v-model="tab" active-bg-color="grey-9" indicator-color="transparent" align="left">
       <q-tab name="suppliers" label="Продавцы" />
       <q-tab name="characteristics" label="Характеристики" />
       <q-tab v-if="product.description" name="description" label="Описание" />
@@ -104,11 +115,9 @@ fetchCharacteristics()
               class="characteristics__values"
             >
               <span class="characteristics__values-title">{{ feature.name }}</span>
-              &#8212
+              &#8212;
               <span>
-                {{
-                  feature.featureValues[0].value === 'true' ? 'Да' : feature.featureValues[0].value
-                }}
+                {{ getFeatureValue(feature.featureValues[0].value) }}
               </span>
             </div>
           </div>

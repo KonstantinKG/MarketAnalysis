@@ -2,6 +2,7 @@
 import MarketAnalysisService from 'src/api'
 import { AllProductsData, CategoryData, FiltersData } from 'src/api/types'
 import { ref, watch } from 'vue'
+import { FILES_PATH } from 'src/constants'
 
 const products = ref<AllProductsData>({
   total: 0,
@@ -172,7 +173,7 @@ fetchCategories()
         <div v-if="!isLoading" class="content__cards">
           <div v-for="product in products.data" :key="product.id" class="content__card">
             <div class="product-image">
-              <q-img fit="contain" height="200px" :src="`/example.jpg`" />
+              <q-img fit="contain" height="200px" :src="`${FILES_PATH}${product.image}`" />
             </div>
             <router-link :to="{ name: 'Product', params: { id: product.id } }">
               <div class="product-name">{{ product.name }}</div>
